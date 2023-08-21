@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/hiteshjain48/RSA-aggregator/internal/database"
 )
@@ -38,11 +39,31 @@ func (apiCfg *apiConfig) handlerCreateFeedFollows(w http.ResponseWriter, r *http
 	respondWithJSON(w, 201, databaseFeedFollowToFeedFollow(feed_follow))
 }
 
-// func (apiCfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) {
-// 	feeds, err := apiCfg.DB.GetFeed(r.Context())
-// 	if err!=nil {
-// 		respondWithErr(w, 400, fmt.Sprintf("Couldn't get feed: %s",err))
-// 	}
+func (apiCfg *apiConfig) handlerGetFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	feed_follows, err := apiCfg.DB.GetFeedFollows(r.Context(), user.ID)
+	if err!=nil {
+		respondWithErr(w, 400, fmt.Sprintf("Couldn't get feeds following: %s",err))
+	}
 
-// 	respondWithJSON(w, 201, databaseFeedsToFeeds(feeds))
-// }
+	respondWithJSON(w, 201, databaseFeedFollowsToFeedFollows(feed_follows))
+}
+
+
+func (apiCfg *apiConfig) handlerDeleteFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollowIDStr := chi.URLParam(r, "feedFollowID")
+	feedFollowID, err := uuid.Parse(feedFollowIDStr)
+	if err != nil {
+		respondWithErr(w, 400, fmt.Sprintf("Couldn't parse feed_id: %s",err))
+		return
+	}
+	
+	err = apiCfg.DB.DeleteFeedFollows(r.Context(), database.DeleteFeedFollowsParams{
+		ID:		feedFollowID,
+		UserID: user.ID,
+	})
+	if err!=nil {
+		respondWithErr(w, 400, fmt.Sprintf("Error in deleting: %s", err))
+		return
+	}
+	respondWithJSON(w, 200, struct{}{})
+}
