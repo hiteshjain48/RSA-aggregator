@@ -19,6 +19,12 @@ type apiConfig struct {
 }
 
 func main(){
+	rssFeed, err := urlToFeed("https://wagslane.dev/index.xml")
+	if err!= nil {
+		log.Fatal(err)
+	}
+	fmt.Print(rssFeed)
+
 	fmt.Println("Hello world!")
 	godotenv.Load(".env")
 	portString := os.Getenv("PORT")
