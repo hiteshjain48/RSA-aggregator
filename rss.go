@@ -42,7 +42,7 @@ func urlToFeed(url string) (RSSFeed, error) {
 
 	rssFeed := RSSFeed{}
 	
-	err = xml.Unmarshal(data, rssFeed)
+	err = xml.Unmarshal(data, &rssFeed)
 	if err!= nil {
 		return RSSFeed{}, err
 	}
